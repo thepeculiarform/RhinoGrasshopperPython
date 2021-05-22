@@ -1,48 +1,74 @@
-﻿__author__ = "The Peculiar Form"
-__version__ = "2021.05.21"
+# "The Peculiar Form"
 
-"""I only need the gypython lib so I have commented out the other
-common Rhino Python libraries that I tend to use."""
-import ghpythonlib.components as gh
-#import Rhino.Geometry as rg
-#import rhinoscriptsyntax as rs
+__author__ = 'Kaushik LS'
+__email__ = 'kaushiklsk96@gmail.com'
 
-#This is a python library outsite of Rhino that I will use to help sort my objects
-from operator import itemgetter
+# - - - - - - - - CODE
 
+import Rhino
 
-#I am creating an empty list here to hold the circles in x
-circles = []
+def GetRadius(circle):
+    return circle.Radius
 
-#I am iterating the list coming into the x input in my GH component
-for circle in x:
-    # I deconstruct each circle into parts and give it a variable name for access
-    dcon = gh.DeconstructArc(circle)
-    #I create a python tuple to hold my object and the radius value from which to sort
-    circles.append((circle, dcon.radius))
+CirclesList = [geo for geo in x if geo.GetType() == Rhino.Geometry.Circle]
+
+CirclesList.sort(key = GetRadius)
+
+big, small = CirclesList[-1], CirclesList[0]
 
 
-#Printing the circles so that they can be seen in the output below and I can
-#understand the structure to navigate the values and objects. 
-print(circles)
-#I am creating a newlist from the circles list and sorting them by the value 
-# where radius is. 
-newlist = sorted(circles, key=itemgetter([1][0]))
-newObjList = [item[0] for item in newlist]
 
 
-#The original list of circles from x-input that have been deconstructed
-a = circles
-#This is my new list I constructed out of the deconstructed parts
-#nd sorted by the radius
-b = newlist
-#This is a new list of the objects alone without the radius value I was 
-#using for sorting
-c = newObjList
-#I am grabbing the first and last elements of the newObjList I created
-#from my sorted list. So, first should be smallest and last is largest
-first = newObjList[0]
-last = newObjList[-1]
-#I am outputting the first and last elements.
-d = first
-e = last
+# - - - - - - - - EXPLANATION
+
+# TIP
+# I know it is easier to use ghpythonlib, I started there too.
+# But try to start using the RhinoCommon API. It has much more flexibility.   
+import Rhino
+
+# Created a function so I can use the result as a sorting parameter.
+
+def GetRadius(circle):
+    return circle.Radius
+
+# List comprehension.
+CirclesList = [geo for geo in x if geo.GetType() == Rhino.Geometry.Circle]
+
+# NOTE
+# I am checking the geometry type before adding them to my list.
+# It is always better to do this, because we cannot control what
+# stupid geometry a random user might connect. Without this check,
+# if the user inputs polygons, polylines, meshes, my code will try
+# to get the radius, and result in a error. I'm simply avoiding all
+# that by filtering.
+
+""" The above statement is the same as:
+
+OPTION A:
+
+CirclesList = []
+for geo in x:
+    if geo.GetType() == Rhino.Geometry.Circle:
+        CirclesList.append(geo)
+        
+OPTION B:
+
+CirclesList = []
+for i in range(len(x)):
+    if x[i].GetType() == Rhino.Geometry.Circle:
+        CirclesList.append(x[i])
+"""
+
+
+# Here, I am sorting the circles by their Radius in ascending order.
+CirclesList.sort(key = GetRadius)
+
+# This is same as your code. Getting the first and the last items.
+big, small = CirclesList[-1], CirclesList[0]
+
+""" It is same as: 
+
+big = CirclesList[-1]
+small = CirclesList[0]
+
+"""
